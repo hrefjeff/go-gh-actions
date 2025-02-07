@@ -28,4 +28,4 @@ jobs:
       - name: Delete old container
         run: docker rm -f go-app-container
       - name: Run docker container
-        run: docker run -d -p 4040:4040 --name go-app-container effwayne256/go-app
+        run: docker run -d -p 4040:4040 --name go-app-container jeffwayne256/go-app

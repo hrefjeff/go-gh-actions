@@ -4,3 +4,28 @@ on:
   push:
     branches:
       - deploy-to-ec2
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Create .env file
+        run: echo "PORT=${{ secrets.PORT }}" >> .env
+      - name: Login to dockerhub
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+      - name: Build docker image
+        run: docker build -t jeffwayne256/go-app .
+      - name: Push docker image
+        run: docker push jeffwayne256/go-app:latest
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Pull docker image
+        run: docker pull jeffwayne256/go-app:latest
+      - name: Delete old container
+        run: docker rm -f go-app-container
+      - name: Run docker container
+        run: docker run -d -p 4040:4040 --name go-app-container effwayne256/go-app
